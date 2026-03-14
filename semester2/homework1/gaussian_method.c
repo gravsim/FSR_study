@@ -37,12 +37,8 @@ int Gaussian_method(int matrix_size, double** matrix, double* determinant) {
         }
         print_matrix(matrix_size, matrix, i+1);
     }
-    if (matrix[i][i] == 0) {
-        *determinant = 0;
-    } else {
-        for (i = 0; i < matrix_size; i++) {
-            *determinant *= matrix[i][i];
-        }
+    for (i = 0; i < matrix_size; i++) {
+        *determinant *= matrix[i][i];
     }
     return 1;
 }
@@ -83,6 +79,9 @@ int main(void) {
     }
     Gaussian_method(matrix_size, matrix, &determinant);
     printf("\nDeterminant of matrix: %0.2lf", determinant);
+    for (i = 0; i < matrix_size; i++) {
+        free(matrix[i]);
+    }
     free(matrix);
     return 0;
 }
