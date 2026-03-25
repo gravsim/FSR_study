@@ -190,9 +190,12 @@ int set_contrast(int bw_size, unsigned char* bw_pic, unsigned char* picture, int
     for (i = 0; i < bw_size; i++) {
         if (
             check_pixel(bw_pic, bw_size, i, i - 1)
-            || check_pixel(bw_pic, bw_size, i, i + 1)
-            || check_pixel(bw_pic, bw_size, i, i - width)
-            || check_pixel(bw_pic, bw_size, i , i + width)
+            ||
+            check_pixel(bw_pic, bw_size, i, i + 1)
+            ||
+            check_pixel(bw_pic, bw_size, i, i - width)
+            ||
+            check_pixel(bw_pic, bw_size, i , i + width)
         ) {
             bw_pic[i] = MAX_BRIGHTNESS;
         }
