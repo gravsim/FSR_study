@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h> 
 #include "lodepng.h" 
 
 
@@ -31,6 +30,10 @@ void write_png(const char* filename, const unsigned char* image, unsigned width,
 
 
 int check_pixel(unsigned char *picture, int bw_size, int i, int neighbour) {
+    /*
+     Проверяем контраст с соседними пискелями, чтобы выделить
+     контрастные обьекты на блеклом фоне.
+    */
     if (!picture) {
         return -1;
     }
@@ -44,6 +47,9 @@ int check_pixel(unsigned char *picture, int bw_size, int i, int neighbour) {
 
 
 int turn_back(unsigned char *picture, unsigned char *bw_pic, int bw_size) {
+    /*
+     Преобразуем полученные координаты для записи в файл.
+    */
     if (!picture || !bw_pic) {
         return -1;
     }
@@ -59,7 +65,7 @@ int turn_back(unsigned char *picture, unsigned char *bw_pic, int bw_size) {
 
 
 int fill_rectangles(unsigned char* bw_pic, unsigned char* territory, int width) {
-    if (!territory) {
+    if (!territory || !bw_pic) {
         return -1;
     }
     int x;
@@ -77,11 +83,11 @@ int fill_rectangles(unsigned char* bw_pic, unsigned char* territory, int width) 
             {356, 121}
         },
         {
-                {597, 288},
-                {1117, 646}
+            {597, 288},
+            {1117, 646}
         },
         {
-                {588, 0},
+                {558, 0},
                 {596, 600}
         },
         {
@@ -113,7 +119,7 @@ int fill_rectangles(unsigned char* bw_pic, unsigned char* territory, int width) 
         for (x = sectors[sector][0][0]; x < sectors[sector][1][0]; x++) {
             for (y = sectors[sector][0][1]; y < sectors[sector][1][1]; y++) {
                 if (bw_pic[y * width + x]) {
-                    territory[y * width + x] = 1;
+                    territory[y * width + x] = 255;
                 }
             }
         }
@@ -130,6 +136,9 @@ int DFS_recursive(
     , unsigned char* territory
     , int width
     ) {
+    /*
+     Рекурсивный поиск в глубину, чтобы отличить танкеры друг от друга.
+    */
     if (!bw_pic
         ||
         !visited
@@ -156,6 +165,10 @@ int DFS_recursive(
 
 
 int set_contrast(int bw_size, unsigned char* bw_pic, unsigned char* picture, int width) {
+    /*
+     Повышаем контраст изображения, проверяя соседние 4 пискеля
+     для каждого пискеля в картинке.
+    */
     if (!bw_pic || !picture) {
         return -1;
     }
@@ -184,7 +197,16 @@ int set_contrast(int bw_size, unsigned char* bw_pic, unsigned char* picture, int
 }
 
 
-int main() {
+int print_info() {
+    printf("\n=============================\n");
+    printf("big_tanker_counter in C 1.0.0\n");
+    printf("=============================\n");
+    return 1;
+}
+
+
+int main(void) {
+    print_info();
     const char* filename = "photo_2026-03-05_12-50-07.png";
     unsigned int width, height;
     int bw_size;
@@ -210,7 +232,7 @@ int main() {
         }
     }
     turn_back(picture, territory, bw_size);
-    write_png("only_tankers.png", picture, width, height);
+    write_png("result.png", picture, width, height);
     printf("Amount of tankers: %d", answer);
     free(bw_pic); 
     free(territory);

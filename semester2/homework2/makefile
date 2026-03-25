@@ -1,6 +1,6 @@
 
-program: main.c lodepng.c
-	gcc main.c lodepng.c -o program
+program: big_tanker_counter.c lodepng.c
+	gcc big_tanker_counter.c lodepng.c -o program
 
 run: program
 	.\program.exe
