@@ -158,8 +158,15 @@ int DFS_recursive(
     visited[current] = 1;
     DFS_recursive(bw_pic, visited, current + 1, bw_size, territory, width);
     DFS_recursive(bw_pic, visited, current - 1, bw_size, territory, width);
+
     DFS_recursive(bw_pic, visited, current + width, bw_size, territory, width);
     DFS_recursive(bw_pic, visited, current - width, bw_size, territory, width);
+
+    DFS_recursive(bw_pic, visited, current + width + 1, bw_size, territory, width);
+    DFS_recursive(bw_pic, visited, current + width - 1, bw_size, territory, width);
+
+    DFS_recursive(bw_pic, visited, current - width + 1, bw_size, territory, width);
+    DFS_recursive(bw_pic, visited, current - width - 1, bw_size, territory, width);
     return 0;
 }
 
