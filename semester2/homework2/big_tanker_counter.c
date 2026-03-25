@@ -3,8 +3,10 @@
 #include "lodepng.h" 
 
 
-#define DARK 10
-#define BRIGHT 135
+#define BRIGHTNESS_DIFFERENCE 45
+#define MAX_BRIGHTNESS 255
+#define MIN_BRIGHTNESS 0
+
 
 unsigned char* load_png(const char* filename, unsigned int* width, unsigned int* height)  {
     unsigned char* image = NULL;
@@ -32,13 +34,13 @@ void write_png(const char* filename, const unsigned char* image, unsigned width,
 int check_pixel(unsigned char *picture, int bw_size, int i, int neighbour) {
     /*
      Проверяем контраст с соседними пискелями, чтобы выделить
-     контрастные обьекты на блеклом фоне.
+     контрастные объекты на блеклом фоне.
     */
     if (!picture) {
         return -1;
     }
     if (i >= 0 && i < bw_size && neighbour > 0 && neighbour < bw_size) {
-        if (picture[i] - picture[neighbour] > 45) {
+        if (picture[i] - picture[neighbour] > BRIGHTNESS_DIFFERENCE) {
             return 1;
         }
     }
@@ -58,7 +60,7 @@ int turn_back(unsigned char *picture, unsigned char *bw_pic, int bw_size) {
         picture[i * 4] = bw_pic[i];
         picture[i * 4 + 1] = bw_pic[i];
         picture[i * 4 + 2] = bw_pic[i];
-        picture[i * 4 + 3] = 255;
+        picture[i * 4 + 3] = MAX_BRIGHTNESS;
     }
     return 1;
 }
@@ -119,7 +121,7 @@ int fill_rectangles(unsigned char* bw_pic, unsigned char* territory, int width) 
         for (x = sectors[sector][0][0]; x < sectors[sector][1][0]; x++) {
             for (y = sectors[sector][0][1]; y < sectors[sector][1][1]; y++) {
                 if (bw_pic[y * width + x]) {
-                    territory[y * width + x] = 255;
+                    territory[y * width + x] = MAX_BRIGHTNESS;
                 }
             }
         }
@@ -192,12 +194,12 @@ int set_contrast(int bw_size, unsigned char* bw_pic, unsigned char* picture, int
             || check_pixel(bw_pic, bw_size, i, i - width)
             || check_pixel(bw_pic, bw_size, i , i + width)
         ) {
-            bw_pic[i] = 255;
+            bw_pic[i] = MAX_BRIGHTNESS;
         }
     }
     for (i = 0; i < bw_size; i++) {
-        if (bw_pic[i] < 255) {
-            bw_pic[i] = 0;
+        if (bw_pic[i] < MAX_BRIGHTNESS) {
+            bw_pic[i] = MIN_BRIGHTNESS;
         }
     }
     return 1;
@@ -218,7 +220,7 @@ int main(void) {
     unsigned int width, height;
     int bw_size;
     unsigned char* picture = load_png(filename, &width, &height);
-    int answer = 0;
+    int tankers_amount = 0;
     int i;
     if (picture == NULL) {
         printf("Problem reading picture from the file %s. Error.\n", filename); 
@@ -235,12 +237,12 @@ int main(void) {
     for (i = 0; i < bw_size; i++) {
         if (!visited[i] && territory[i]) {
             DFS_recursive(territory, visited, i, bw_size, territory, width);
-            answer++;
+            tankers_amount++;
         }
     }
     turn_back(picture, territory, bw_size);
     write_png("result.png", picture, width, height);
-    printf("Amount of tankers: %d", answer);
+    printf("Amount of tankers: %d", tankers_amount);
     free(bw_pic); 
     free(territory);
     free(visited);
