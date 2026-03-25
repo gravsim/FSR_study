@@ -20,8 +20,8 @@ unsigned char* load_png(const char* filename, unsigned int* width, unsigned int*
 // Если преобразовать массив в картинку или сохранить не смогли,  пишем сообщение об ошибке
 void write_png(const char* filename, const unsigned char* image, unsigned width, unsigned height) {
     unsigned char* png;
-    long unsigned int pngsize;
-    int error = lodepng_encode32(&png, (size_t*)&pngsize, image, width, height);
+    long long unsigned int pngsize;
+    int error = lodepng_encode32(&png, &pngsize, image, width, height);
     if (error == 0) {
         lodepng_save_file(png, pngsize, filename);
     } else {
@@ -73,12 +73,12 @@ void color(unsigned char *blr_pic, unsigned char *res, int size) {
 
 
 int main() {
-    const char* filename = "skull.png"; 
+    const char* filename = "photo_2026-03-05_12-50-07.png";
     unsigned int width, height;
     int size;
     int bw_size;
     // Прочитали картинку
-    unsigned char* picture = load_png("skull.png", &width, &height); 
+    unsigned char* picture = load_png(filename, &width, &height);
     if (picture == NULL) {
         printf("Problem reading picture from the file %s. Error.\n", filename); 
         return -1; 
@@ -87,14 +87,18 @@ int main() {
     size = width * height * 4;
     bw_size = width * height;
 
-    unsigned char* bw_pic = malloc(bw_size * sizeof(unsigned char));
+    unsigned char* bw_pic = calloc(size, sizeof(unsigned char));
     unsigned char* blr_pic = malloc(bw_size * sizeof(unsigned char));
     unsigned char* finish = malloc(bw_size * sizeof(unsigned char));
 
-    printf("ABOBA");
     int i;
+    unsigned char value;
     for (i = 0; i < bw_size; i++) {
-        bw_pic[i] = (picture[i*4] + picture[i*4+1] + picture[i*4+2]) / 3;
+        value = (picture[i * 4] + picture[i * 4 + 1] + picture[i * 4 + 2]) / 3;
+        bw_pic[i * 4] = value;
+        bw_pic[i * 4 + 1] = value;
+        bw_pic[i * 4 + 2] = value;
+        bw_pic[i * 4 + 3] = 255;
     }
 
     // Например, поиграли с контрастом
