@@ -21,7 +21,7 @@ unsigned char* load_png(const char* filename, unsigned int* width, unsigned int*
 void write_png(const char* filename, const unsigned char* image, unsigned width, unsigned height) {
     unsigned char* png;
     long unsigned int pngsize;
-    int error = lodepng_encode32(&png, &pngsize, image, width, height);
+    int error = lodepng_encode32(&png, (size_t*)&pngsize, image, width, height);
     if (error == 0) {
         lodepng_save_file(png, pngsize, filename);
     } else {
@@ -31,7 +31,7 @@ void write_png(const char* filename, const unsigned char* image, unsigned width,
 }
 
 
-// вариант огрубления серого цвета в ЧБ 
+// вариант огрубления серого цвета в ЧБ
 void contrast(unsigned char *col, int bw_size) {
     int i; 
     for (i = 0; i < bw_size; i++) {
@@ -87,19 +87,25 @@ int main() {
     size = width * height * 4;
     bw_size = width * height;
 
-    unsigned char* bw_pic = (unsigned char*)malloc(bw_size * sizeof(unsigned char));
-    unsigned char* blr_pic = (unsigned char*)malloc(bw_size * sizeof(unsigned char));
-    unsigned char* finish = (unsigned char*)malloc(size * sizeof(unsigned char));
- 
+    unsigned char* bw_pic = malloc(bw_size * sizeof(unsigned char));
+    unsigned char* blr_pic = malloc(bw_size * sizeof(unsigned char));
+    unsigned char* finish = malloc(bw_size * sizeof(unsigned char));
+
+    printf("ABOBA");
+    int i;
+    for (i = 0; i < bw_size; i++) {
+        bw_pic[i] = (picture[i*4] + picture[i*4+1] + picture[i*4+2]) / 3;
+    }
+
     // Например, поиграли с контрастом
-    contrast(bw_pic, bw_size); 
+    //contrast(bw_pic, bw_size);
         // посмотрим на промежуточные картинки
-    write_png("contrast.png", finish, width, height);
+    write_png("contrast.png", bw_pic, width, height);
     
     // поиграли с Гауссом
-    Gauss_blur(bw_pic, blr_pic, width, height); 
+    //Gauss_blur(bw_pic, blr_pic, width, height);
     // посмотрим на промежуточные картинки
-    write_png("gauss.png", finish, width, height);
+    //write_png("gauss.png", finish, width, height);
     
     // сделали еще что-нибудь
     // .....
@@ -111,11 +117,11 @@ int main() {
     // ....
     //
     
-    write_png("intermediate_result.png", finish, width, height);
-    color(blr_pic, finish, bw_size); 
+    //write_png("intermediate_result.png", finish, width, height);
+    //color(blr_pic, finish, bw_size);
     
     // выписали результат
-    write_png("picture_out.png", finish, width, height); 
+    //write_png("picture_out.png", finish, width, height);
     
     // не забыли почистить память!
     free(bw_pic); 
